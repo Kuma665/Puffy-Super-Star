@@ -1,27 +1,13 @@
-# [Spielname] – Projektregeln
+# Puffy Super Star – Projektregeln
 
-## Vor jeder Arbeit
-- Kurz, freundlich, auf Deutsch antworten. Nur ändern, worum ich bitte.
-- Richtigen Ordner/Datei prüfen; bei mehreren Kopien nachfragen.
-- Vor Änderungen `git status`; bei offenen Änderungen Sicherung außerhalb des Repos anlegen und Pfad nennen.
-- Lokal committen nach jedem fertigen Feature („Spiel aktualisiert: …“). Pushen nur auf ausdrückliche Bitte.
-- Nur nötige Codebereiche lesen, nie das ganze Skript ausgeben.
-- Bei klarer Empfehlung direkt umsetzen und berichten; nur bei Geschmacksfragen oder Löschen vorher fragen.
-- Ehrlich nennen, was geprüft wurde. Nie behaupten, gespielt/sicher behoben, wenn nicht geprüft.
+Allgemeine Regeln (Kommunikation, Sicherung, Git, Spielgerät, Performance) stehen in der globalen CLAUDE.md.
 
 ## Projekt
-- Spiel in einer HTML-Datei (`index.html`), Pfad: `C:\Users\arams\Documents\GitHub\[Spielname]`.
-- Veröffentlicht über GitHub Pages.
+- Ordner: `C:\Users\arams\Documents\GitHub\Puffy-Super-Star` (Repo Kuma665/Puffy-Super-Star, GitHub Pages über GitHub Actions).
+- Ganzes Spiel in `index.html`, Canvas 2D mit Pixel-Grafik (Kacheln/Sprites werden per Code in kleine Canvas gezeichnet).
+- Spielschleife mit Akkumulator, Zeichnen interpoliert (`draw(acc/16.67)`): keine Spiellogik im Zeichnen-Teil.
+- localStorage-Schlüssel beginnen mit `puffy_`.
+- Sicherungen: `C:\Users\arams\Documents\GitHub\Puffy-Super-Star_backups\`
 
-## Schutzregeln
-- Große Daten-Dateien (Base64, Musik) nie lesen, ausgeben oder bearbeiten.
-- Suchen mit Perl/awk (kein Python), Zeilen über 20.000 Zeichen überspringen, Ausgaben kurz halten.
-- Vor neuen Funktions-/Feldnamen prüfen, ob es sie schon gibt.
-- Keine Pakete installieren, keine Subagenten oder langen Tests ohne Rückfrage.
-
-## Spielgerät
-- Handy (OnePlus 12, Browser) mit PS5-Controller. Kleiner Bildschirm: HUD sparsam. Handy-Leistung mitbedenken.
-
-## Performance
-- Viele gleiche Objekte als InstancedMesh; Geometrien/Materialien wiederverwenden, nichts pro Frame neu erzeugen.
-- Entferntes mit `dispose()` freigeben. Effekte mit fester Obergrenze. DOM nicht jeden Frame ändern.
+## Projektwissen
+- (Hier wichtige Namen, Fallstricke und Testaufrufe ergänzen, sobald sie entstehen.)
