@@ -2,7 +2,7 @@
 <style>
 :root{--bg:#1b1030;--fg:#fff;--btn:#ff8fc2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root{--bg:#1b1030}}
-html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font:12px monospace;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overflow:hidden}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font:12px monospace;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overflow:hidden;overscroll-behavior:none}
 body{display:flex;flex-direction:column;align-items:center}
 canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges;image-rendering:pixelated;background:#000}
 #ctl{display:flex;justify-content:space-between;align-items:center;width:100%;box-sizing:border-box;padding:10px 16px;margin-top:auto;margin-bottom:10px}
@@ -45,11 +45,21 @@ body{justify-content:center}
 #acts{margin-left:auto}
 }
 body.pad #ctl{display:none!important}
+#rot{display:none;position:fixed;inset:0;z-index:20;background:var(--bg);color:#fff;flex-direction:column;align-items:center;justify-content:center;gap:12px;font:bold 16px monospace;text-align:center}
+#rot b{font-size:48px;color:#ff8fc2}
+@media(orientation:portrait) and (pointer:coarse){#rot{display:flex}}
+#err{position:fixed;left:calc(env(safe-area-inset-left,0px) + 4px);bottom:calc(env(safe-area-inset-bottom,0px) + 4px);z-index:30;max-width:70vw;font:10px monospace;color:#fff;pointer-events:none}
+#err div{background:rgba(160,0,0,.8);padding:2px 5px;margin-top:2px;border-radius:3px;word-break:break-all}
 </style></head><body>
+<div id="rot"><b>⟳</b>Bitte Handy quer halten</div><div id="err"></div>
 <canvas id="c"></canvas><button id="pa" aria-label="Pause">II</button><button id="mu" aria-label="Ton">♪</button><button id="vb" aria-label="Vibration">≋</button><button id="cl" aria-label="Farben" style="display:none">🎨</button><button id="fs" aria-label="Vollbild"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" stroke="#412" stroke-width="2.4" fill="none"/></svg></button><button id="np" aria-label="Spieler">1P</button><button id="h2" aria-label="Hut Spieler 2">H2</button>
 <div id="ctl"><div id="dpad"><i class="dk" data-d="u">▲</i><i class="dk" data-d="l">◀</i><i class="dk" data-d="r">▶</i><i class="dk" data-d="d">▼</i><b id="knob"></b></div>
 <div id="acts"><button class="s" data-k="c">H</button><button data-k="a">B</button><button data-k="j">A</button></div></div>
 <script>
+// Fehleranzeige (max. 3 Meldungen, gleiche nur einmal)
+(function(){const box=document.getElementById('err'),seen={};function show(t){t=String(t).slice(0,160);if(seen[t])return;seen[t]=1;const d=document.createElement('div');d.textContent=t;box.appendChild(d);while(box.children.length>3)box.removeChild(box.firstChild);setTimeout(()=>{if(d.parentNode)d.parentNode.removeChild(d)},15000)}
+window.addEventListener('error',e=>show((e.message||'Fehler')+' @'+(e.lineno||'?')+':'+(e.colno||'?')));
+window.addEventListener('unhandledrejection',e=>{const r=e.reason;show('Promise: '+(r&&r.message?r.message:r))})})();
 const C=document.getElementById('c'),X=C.getContext('2d');
 const H=160,T=16;let LW=140,VW=240,VH=160,oy=0;
 function layout(){const dpr=window.devicePixelRatio||1,dw=innerWidth*dpr,dh=innerHeight*dpr,land=innerWidth>innerHeight;let n;
@@ -1109,9 +1119,31 @@ let last=0,acc=0;
 const FSB=document.getElementById('fs'),FSE=document.documentElement;let WLK=null;
 const fsOn=()=>document.fullscreenElement||document.webkitFullscreenElement;
 if(!FSE.requestFullscreen&&!FSE.webkitRequestFullscreen)FSB.style.display='none';
-async function toggleFS(){try{if(!fsOn()){await (FSE.requestFullscreen?FSE.requestFullscreen({navigationUI:'hide'}):FSE.webkitRequestFullscreen());try{await screen.orientation.lock('landscape')}catch(e){}try{WLK=await navigator.wakeLock.request('screen')}catch(e){}}else{try{screen.orientation.unlock()}catch(e){}try{if(WLK){WLK.release();WLK=null}}catch(e){}await (document.exitFullscreen?document.exitFullscreen():document.webkitExitFullscreen())}}catch(e){}}
+// FSW: Vollbild gewünscht (Standard an; nur der Vollbild-Knopf schaltet es ab)
+let FSW=true;
+function enterFS(){if(fsOn()||!(FSE.requestFullscreen||FSE.webkitRequestFullscreen))return;try{const p=FSE.requestFullscreen?FSE.requestFullscreen({navigationUI:'hide'}):FSE.webkitRequestFullscreen();if(p&&p.then)p.then(lockOri,()=>{})}catch(e){}}
+function lockOri(){try{const o=screen.orientation;if(o&&o.lock)o.lock('landscape').catch(()=>{})}catch(e){}}
+async function toggleFS(){try{if(!fsOn()){FSW=true;enterFS()}else{FSW=false;try{screen.orientation.unlock()}catch(e){}await (document.exitFullscreen?document.exitFullscreen():document.webkitExitFullscreen())}}catch(e){}}
+// Wake Lock: unabhängig vom Vollbild, nach Rückkehr neu anfordern
+function reqWL(){if(document.hidden||(WLK&&!WLK.released)||!navigator.wakeLock)return;try{navigator.wakeLock.request('screen').then(l=>{WLK=l},()=>{})}catch(e){}}
+// Auto-Pause (ohne Ton) bei Fokusverlust, Verlassen, Controller-Trennung, Hochformat
+function autoPause(){if(st=='play'){st='pause';psel=0}}
+// Zurück-Taste: History-Eintrag erst nach erster Eingabe
+let HSTP=false;
+function backH(){if(st=='play'){autoPause();return}if(st=='pause')return;
+ const cpE=document.getElementById('cp');if(st=='title'&&cpE&&cpE.style.display!='none'){cpE.style.display='none';return}
+ if(st=='help'){st='title';return}}
+addEventListener('popstate',()=>{try{history.pushState({puffy:1},'')}catch(e){}backH()});
+function userIn(e){if(!HSTP){HSTP=true;try{history.pushState({puffy:1},'')}catch(_){}}
+ reqWL();if(FSW&&!(e&&e.target&&e.target.closest&&e.target.closest('#fs')))enterFS()}
+addEventListener('pointerup',userIn,true);addEventListener('keydown',userIn,true);
+addEventListener('blur',()=>{autoPause();if(AC&&AC.state=='running')AC.suspend()});
+addEventListener('focus',()=>{if(AC&&!document.hidden&&AC.state!='running')AC.resume()});
+addEventListener('pagehide',()=>{autoPause();if(AC)AC.suspend()});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)autoPause();else reqWL()});
+addEventListener('resize',()=>{if(innerHeight>innerWidth&&matchMedia('(pointer:coarse)').matches)autoPause()});
 FSB.addEventListener('click',e=>{e.preventDefault();toggleFS()});
-function fsChange(){FSB.querySelector('path').setAttribute('d',fsOn()?'M6 2v4H2M10 2v4h4M14 10h-4v4M2 10h4v4':'M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4');setTimeout(layout,150);setTimeout(layout,500)}
+function fsChange(){if(fsOn())lockOri();FSB.querySelector('path').setAttribute('d',fsOn()?'M6 2v4H2M10 2v4h4M14 10h-4v4M2 10h4v4':'M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4');setTimeout(layout,150);setTimeout(layout,500)}
 document.addEventListener('fullscreenchange',fsChange);document.addEventListener('webkitfullscreenchange',fsChange);
 const NPB=document.getElementById('np'),H2B=document.getElementById('h2');H2B.addEventListener('pointerdown',e=>{e.preventDefault();cycHat2(1)});let npv='';initCP();NPB.addEventListener('pointerdown',e=>{e.preventDefault();NP=NP%4+1;try{snd('menu')}catch(_){}});
 let PADON=0,PADG=null;const PS={};
@@ -1119,8 +1151,12 @@ function pset(n,v){if(PS[n]===v)return;PS[n]=v;key(n,v)}
 const PSX=[{},{},{},{}];function psetN(i,n,v){const s=PSX[i];if(s[n]===v)return;s[n]=v;if(v&&!KS[i][n])ES[i][n]=1;KS[i][n]=v}const PS2={};function pset2(n,v){if(PS2[n]===v)return;PS2[n]=v;key2(n,v)}
 const Z0={l:0,r:0,u:0,d:0,j:0,a:0,f:0,tri:0,op:0,sh:0};
 function padSt(g){const b=i=>!!(g.buttons[i]&&g.buttons[i].pressed),ax=g.axes[0]||0,ay=g.axes[1]||0;return{l:b(14)||ax<-.4,r:b(15)||ax>.4,u:b(12)||ay<-.55,d:b(13)||ay>.55,j:b(0),a:b(2)||b(1),f:b(4)||b(5)||b(6)||b(7),tri:b(3),op:b(9),sh:b(8)||b(17)}}
-function pollPad(){const pads=[];try{for(const q of (navigator.getGamepads?navigator.getGamepads():[]))if(q&&q.connected)pads.push(q)}catch(e){}
-PADON=pads.length;PADG=pads[0]||null;PADS=pads;if(document.body.classList.contains('pad')!==(PADON>0))document.body.classList.toggle('pad',PADON>0);if(pads.some(g=>g.buttons.some(x=>x.pressed)))startAudio();
+let PPN=0;
+function pollPad(){const all=[];try{for(const q of (navigator.getGamepads?navigator.getGamepads():[]))if(q&&q.connected)all.push(q)}catch(e){}
+PADON=all.length;PADG=all[0]||null;PADS=all;if(document.body.classList.contains('pad')!==(PADON>0))document.body.classList.toggle('pad',PADON>0);
+if(PADON<PPN)autoPause();PPN=PADON;
+// Eingaben nur mit Fokus auswerten (Controller bleibt trotzdem "verbunden")
+const pads=(document.hasFocus()&&!document.hidden)?all:[];if(pads.some(g=>g.buttons.some(x=>x.pressed)))startAudio();
 const two=NP>=2&&st=='play',g1=pads[0]||null,g2=(two&&pads.length>1)?pads[1]:null;
 const s1=g1?padSt(g1):Z0,s2=g2?padSt(g2):Z0;
 for(const n of['l','r','u','d','j','a','f']){pset(n,!!s1[n]);pset2(n,!!s2[n])}
