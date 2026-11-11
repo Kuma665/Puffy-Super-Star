@@ -190,7 +190,7 @@ const VBL=Date.now?{}:{};const VT=[0,0,0,0];
 function padFor(i){const two=NP>=2&&st=='play';if(i==0)return PADS[0]||null;return(two&&PADS.length>i)?PADS[i]:null}
 let VLEV=10,psel=0;try{const v=localStorage.getItem('puffy_vibl');if(v!==null)VLEV=Math.max(0,Math.min(10,+v||0))}catch(e){}
 // Grafik: GQ Einstellung (0 Auto,1 Niedrig,2 Mittel,3 Hoch), GL wirksame Stufe (0..2)
-const VER="V2026-11-11D",GFXN=['AUTO','NIEDRIG','MITTEL','HOCH'],PCAP=[60,140,260];let GQ=0,GL=2;try{const g=+localStorage.getItem('puffy_gfx');if(g>=0&&g<=3)GQ=g|0}catch(e){}if(GQ)GL=GQ-1;
+const VER="V2026-11-11E",GFXN=['AUTO','NIEDRIG','MITTEL','HOCH'],PCAP=[60,140,260];let GQ=0,GL=2;try{const g=+localStorage.getItem('puffy_gfx');if(g>=0&&g<=3)GQ=g|0}catch(e){}if(GQ)GL=GQ-1;
 function gfxSet(q){GQ=(GQ+q+4)%4;GL=GQ?GQ-1:2;GA.n=GA.s=0;try{localStorage.setItem('puffy_gfx',GQ)}catch(e){}}
 // Auto: über ca. 2 s gemittelte Bildzeit; zu langsam -> eine Stufe runter
 const GA={n:0,s:0};function gfxAuto(dt){if(GQ||st!='play'||document.hidden||!(dt>0&&dt<100))return;GA.n++;GA.s+=dt;if(GA.s<2000)return;if(GA.s/GA.n>24&&GL>0)GL--;GA.n=GA.s=0}
@@ -468,9 +468,9 @@ function cycHatA(i,q){if(i)return cycHatN(i,q);let h=SV.hat|0;do{h=(h+q+HATS.len
 function cpStep(){const n=NP*3;if(CPS>=n)CPS=0;if(ed.u){CPS=(CPS+n-1)%n;snd("menu")}if(ed.d){CPS=(CPS+1)%n;snd("menu")}
 if(ed.l||ed.r){const q=ed.r?1:-1,i=CPS/3|0,k=CPS%3;if(k==2)cycHatA(i,q);else{const f=k?"f":"b",c=colOf(i);let j=CPAL.indexOf(String(c[f]).toLowerCase());j=j<0?(q>0?0:CPAL.length-1):(j+q+CPAL.length)%CPAL.length;c[f]=CPAL[j];SV.col=SV.col||[];SV.col[i]=c;save();snd("menu")}}
 if(ed.j||ed.a||ed.c){CPM=0;snd("menu")}}
-function cpDraw(){const n=NP*3,hh=Math.max(84,34+n*9),y0=oy+Math.max(2,(156-hh)/2|0),x0=VW/2-50;dim(.55);panel(x0-60,y0,220,hh);
- {const i=CPS/3|0,bx=x0-54,by=y0+18,bh=hh-32,o=P;FR(bx,by,50,bh,"#1e0e3a");FR(bx,by,50,1,"#4a2a7a");ptx("P"+(i+1),bx+25,by+3,1,"#8fe8c8","center");FR(bx+13,Math.round(by+bh/2+23),24,3,"rgba(0,0,0,.35)");
- P=Object.assign({},o,{x:camR-6,y:-3,pi:i,hatI:hatOf(i),dir:1,inv:0,idle:0,hold:null,ab:null,infl:0,g:1,vx:0,dead:0,fly:0,run:0,slide:0,dash:0,sw:0,hp:10,hap:0,aura:0,wheel:0});PL.pink=bodyPal(i);const fr0=frame;frame=100;X.save();X.translate(bx+25,Math.round(by+bh/2+4));X.scale(2,2);try{drawP1()}finally{X.restore();frame=fr0;PL.pink=PL.p1;P=o}}ptx("FARBEN UND HUT",VW/2,y0+6,1,"#ffe030","center");
+function cpDraw(){const n=NP*3,hh=34+n*9,y0=oy+Math.max(2,(156-hh)/2|0),x0=VW/2-62;dim(.55);panel(x0-32,y0,194,hh);
+ {const o=P,fr0=frame,si=CPS/3|0;frame=100;try{for(let i=0;i<NP;i++){const gy=y0+17+i*27,on=i==si;FR(x0-27,gy,28,26,on?"#4a2470":"#1e0e3a");if(on){FR(x0-27,gy,28,1,"#ff8fc2");FR(x0-27,gy+25,28,1,"#ff8fc2")}FR(x0-19,gy+23,12,2,"rgba(0,0,0,.35)");
+ P=Object.assign({},o,{x:camR+x0-19,y:gy+10,pi:i,hatI:hatOf(i),dir:1,inv:0,idle:0,hold:null,ab:null,infl:0,g:1,vx:0,dead:0,fly:0,run:0,slide:0,dash:0,sw:0,hp:10,hap:0,aura:0,wheel:0});PL.pink=bodyPal(i);drawP1()}}finally{frame=fr0;PL.pink=PL.p1;P=o}}ptx("FARBEN UND HUT",VW/2,y0+6,1,"#ffe030","center");
 for(let r=0;r<n;r++){const i=r/3|0,k=r%3,y=y0+19+r*9,on=r==CPS;if(on)FR(x0+6,y-2,148,9,"#7a2a68");if(!k)ptx("P"+(i+1),x0+9,y,1,"#8fe8c8");ptx(["KOERPER","FUESSE","HUT"][k],x0+26,y,1,on?"#ffe030":"#fff");
  if(k<2){FR(x0+94,y-1,26,7,"#fff");FR(x0+95,y,24,5,colOf(i)[k?"f":"b"])}else ptx(HATS[hatOf(i)][0],x0+94,y,1,on?"#ffe030":"#bbb");if(on){ptx("<",x0+86,y,1,"#ffe030");ptx(">",x0+148,y,1,"#ffe030")}}
 ptx("RECHTS/LINKS AENDERN  "+bn("j")+" FERTIG",VW/2,y0+hh-10,1,"#bbb","center")}
