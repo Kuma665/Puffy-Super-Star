@@ -193,7 +193,7 @@ const VBL=Date.now?{}:{};const VT=[0,0,0,0];
 function padFor(i){const two=NP>=2&&st=='play';if(i==0)return PADS[0]||null;return(two&&PADS.length>i)?PADS[i]:null}
 let VLEV=10,psel=0;try{const v=localStorage.getItem('puffy_vibl');if(v!==null)VLEV=Math.max(0,Math.min(10,+v||0))}catch(e){}
 // Grafik: GQ Einstellung (0 Auto,1 Niedrig,2 Mittel,3 Hoch), GL wirksame Stufe (0..2)
-const VER="V2026-11-12D",GFXN=['AUTO','NIEDRIG','MITTEL','HOCH'],PCAP=[60,140,260];let GQ=0,GL=2;try{const g=+localStorage.getItem('puffy_gfx');if(g>=0&&g<=3)GQ=g|0}catch(e){}if(GQ)GL=GQ-1;
+const VER="V2026-11-12E",GFXN=['AUTO','NIEDRIG','MITTEL','HOCH'],PCAP=[60,140,260];let GQ=0,GL=2;try{const g=+localStorage.getItem('puffy_gfx');if(g>=0&&g<=3)GQ=g|0}catch(e){}if(GQ)GL=GQ-1;
 function gfxSet(q){GQ=(GQ+q+4)%4;GL=GQ?GQ-1:2;GA.n=GA.s=0;try{localStorage.setItem('puffy_gfx',GQ)}catch(e){}}
 // Auto: über ca. 2 s gemittelte Bildzeit; zu langsam -> eine Stufe runter
 const GA={n:0,s:0};function gfxAuto(dt){if(GQ||st!='play'||document.hidden||!(dt>0&&dt<100))return;GA.n++;GA.s+=dt;if(GA.s<2000)return;if(GA.s/GA.n>24&&GL>0)GL--;GA.n=GA.s=0}
@@ -554,7 +554,7 @@ SB=SB.filter(b=>!b.done)}
 function npl(o){let b=null,bd=1e9;for(const q of PLS){if(q.dead)continue;const d=Math.abs(q.x-o.x);if(d<bd){bd=d;b=q}}return b||P}
 function LD(){return PLS.filter(q=>!q.dead).sort((a,b)=>b.x-a.x)[0]||P}
 function CPX(){const a=PLS.filter(q=>!q.dead);return a.length?a.reduce((t,q)=>t+q.x,0)/a.length:P.x}
-function step(){frame++;if(PT.length>PCAP[GL])PT.splice(0,PT.length-PCAP[GL]);snapPrev();tut();
+function step(){if(PT.length>PCAP[GL])PT.splice(0,PT.length-PCAP[GL]);snapPrev();if(st!="pause"){frame++;tut()}
 if(st!='play')suckOn(0);
 if(st=='warp'){nt--;if(nt==13){PLS.forEach((q,i)=>{q.x=WP.tx+i*14;q.y=WP.ty;q.vx=0;q.vy=0;q.px_=q.x;q.py_=q.y});if(!B||B.s<0)camMin=0;cam=Math.max(camMin,Math.min(CMX(),P.x-VW*.4));ocam=cam;P.px_=P.x;P.py_=P.y;PR=[];EP=[]}if(nt<=0)st='play';return}
 if(st=='help'){if(ed.j||ed.a||ed.c)st='title';return}
