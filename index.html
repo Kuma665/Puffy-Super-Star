@@ -68,7 +68,7 @@ const H=160,T=16;let LW=140,VW=240,VH=160,oy=0;
 function layout(){const dpr=window.devicePixelRatio||1,dw=innerWidth*dpr,dh=innerHeight*dpr,land=innerWidth>innerHeight;let n;
 if(land){VH=160;n=Math.max(2,Math.floor(dh/VH));VW=Math.max(240,Math.min(420,Math.floor(dw/n)))}
 else{VH=208;n=Math.max(2,Math.floor(dw/240));VW=Math.max(200,Math.min(300,Math.floor(dw/n)))}
-oy=VH-H;C.width=VW;C.height=VH;X.imageSmoothingEnabled=false;C.style.width=VW*n/dpr+'px';C.style.height=VH*n/dpr+'px';const cz=document.getElementById('cp');if(cz)cz.style.zoom=Math.max(1,Math.min(innerWidth,innerHeight)/412)}
+oy=VH-H;C.width=VW;C.height=VH;X.imageSmoothingEnabled=false;C.style.width=VW*n/dpr+'px';C.style.height=VH*n/dpr+'px'}
 addEventListener('resize',layout);addEventListener('orientationchange',()=>setTimeout(layout,150));layout();
 let k={},ed={};const K1=k,E1=ed,K2={},E2={},K3={},E3={},K4={},E4={},KS=[K1,K2,K3,K4],ES=[E1,E2,E3,E4];let NP=1,PLS=[];const KM1={a:'l',d:'r',w:'u',s:'d',f:'j',g:'a',Shift:'f'},KM2={ArrowLeft:'l',ArrowRight:'r',ArrowUp:'u',ArrowDown:'d',',':'j','.':'a','/':'f'};
 function key2(n,v){if(v&&!K2[n])E2[n]=1;K2[n]=v}
@@ -193,7 +193,7 @@ const VBL=Date.now?{}:{};const VT=[0,0,0,0];
 function padFor(i){const two=NP>=2&&st=='play';if(i==0)return PADS[0]||null;return(two&&PADS.length>i)?PADS[i]:null}
 let VLEV=10,psel=0;try{const v=localStorage.getItem('puffy_vibl');if(v!==null)VLEV=Math.max(0,Math.min(10,+v||0))}catch(e){}
 // Grafik: GQ Einstellung (0 Auto,1 Niedrig,2 Mittel,3 Hoch), GL wirksame Stufe (0..2)
-const VER="V2026-11-12C",GFXN=['AUTO','NIEDRIG','MITTEL','HOCH'],PCAP=[60,140,260];let GQ=0,GL=2;try{const g=+localStorage.getItem('puffy_gfx');if(g>=0&&g<=3)GQ=g|0}catch(e){}if(GQ)GL=GQ-1;
+const VER="V2026-11-12D",GFXN=['AUTO','NIEDRIG','MITTEL','HOCH'],PCAP=[60,140,260];let GQ=0,GL=2;try{const g=+localStorage.getItem('puffy_gfx');if(g>=0&&g<=3)GQ=g|0}catch(e){}if(GQ)GL=GQ-1;
 function gfxSet(q){GQ=(GQ+q+4)%4;GL=GQ?GQ-1:2;GA.n=GA.s=0;try{localStorage.setItem('puffy_gfx',GQ)}catch(e){}}
 // Auto: über ca. 2 s gemittelte Bildzeit; zu langsam -> eine Stufe runter
 const GA={n:0,s:0};function gfxAuto(dt){if(GQ||st!='play'||document.hidden||!(dt>0&&dt<100))return;GA.n++;GA.s+=dt;if(GA.s<2000)return;if(GA.s/GA.n>24&&GL>0)GL--;GA.n=GA.s=0}
@@ -210,16 +210,7 @@ function mixc(h,t,a){const n=parseInt(h.slice(1),16);return'#'+[n>>16&255,n>>8&2
 const PALC={};function mkpal(c){return PALC[c]||(PALC[c]={l:mixc(c,255,.55),m:c,d:mixc(c,0,.25),o:mixc(c,0,.62)})}
 function bodyPal(i){plInit();const c=colOf(i).b;return i<2&&c==DEFC[i].b?(i?PL.p2:PL.p1):mkpal(c)}
 function footPal(i){const c=colOf(i).f;return i<2&&c==DEFC[i].f?(i?PFG:PF):mkpal(c)}
-function initCP(){CLB=document.getElementById('cl');const cp=document.createElement('div');cp.id='cp';cp.style.cssText='position:fixed;inset:0;display:none;z-index:20;background:rgba(10,4,24,.94);color:#fff;font:bold 13px monospace;align-items:center;justify-content:safe center;flex-direction:column;gap:10px;overflow:auto;padding:10px';document.body.appendChild(cp);
-const mk=(t,css,tx)=>{const e=document.createElement(t);if(css)e.style.cssText=css;if(tx)e.textContent=tx;return e};
-function render(){cp.textContent='';cp.appendChild(mk('div','font-size:16px;color:#ffe030','FARBEN WÄHLEN'));
-for(let i=0;i<NPMAX;i++){const row=mk('div','display:flex;align-items:center;gap:12px;background:#2a1450;border-radius:10px;padding:8px 12px');
-const pv=mk('div','position:relative;width:44px;height:42px'),bd=mk('i','position:absolute;left:6px;top:0;width:32px;height:32px;border-radius:50%;border:2px solid #fff;box-sizing:border-box'),f1=mk('i','position:absolute;left:2px;top:29px;width:18px;height:11px;border-radius:50%;border:2px solid #fff;box-sizing:border-box'),f2=mk('i',f1.style.cssText);f2.style.left='24px';pv.append(bd,f1,f2);
-const upd=()=>{const c=colOf(i);bd.style.background=c.b;f1.style.background=f2.style.background=c.f};
-const inp=(lab,key)=>{const w=mk('label','display:flex;flex-direction:column;align-items:center;gap:3px',lab),x=document.createElement('input');x.type='color';x.value=colOf(i)[key];x.style.cssText='width:52px;height:34px;border:0;padding:0;background:none';x.addEventListener('input',()=>{SV.col=SV.col||[];const c=colOf(i);c[key]=x.value;SV.col[i]=c;save();upd()});w.appendChild(x);return w};
-const rs=mk('button','width:auto;height:30px;border-radius:8px;padding:0 8px;font-size:11px','RESET');rs.addEventListener('click',()=>{if(SV.col)delete SV.col[i];save();render()});
-row.append(mk('div','width:24px;color:#8fe8c8','P'+(i+1)),pv,inp('KÖRPER','b'),inp('FÜSSE','f'),rs);cp.appendChild(row);upd()}
-const ok=mk('button','width:auto;height:40px;border-radius:10px;padding:0 24px;font-size:14px','FERTIG');ok.addEventListener('click',()=>{cp.style.display='none'});cp.appendChild(ok)}
+function initCP(){CLB=document.getElementById('cl');
 CLB.addEventListener('pointerdown',e=>{e.preventDefault();if(st!='title')return;CPM=CPM?0:1;CPS=0;try{snd('menu')}catch(_){}})}
 // ===== Kollision =====
 const SOL=[0,1,0,1,0,1,1,1,1];
@@ -1174,7 +1165,7 @@ function autoPause(){if(st=='play'){st='pause';psel=0}}
 // Zurück-Taste: History-Eintrag erst nach erster Eingabe
 let HSTP=false;
 function backH(){if(st=='play'){autoPause();return}if(st=='pause')return;
- const cpE=document.getElementById('cp');if(st=='title'&&cpE&&cpE.style.display!='none'){cpE.style.display='none';return}
+ if(st=='title'&&CPM){CPM=0;return}
  if(st=='help'){st='title';return}}
 addEventListener('popstate',()=>{try{history.pushState({puffy:1},'')}catch(e){}backH()});
 function userIn(e){if(!HSTP){HSTP=true;try{history.pushState({puffy:1},'')}catch(_){}}
