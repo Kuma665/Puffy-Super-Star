@@ -193,7 +193,7 @@ const VBL=Date.now?{}:{};const VT=[0,0,0,0];
 function padFor(i){const two=NP>=2&&st=='play';if(i==0)return PADS[0]||null;return(two&&PADS.length>i)?PADS[i]:null}
 let VLEV=10,psel=0;try{const v=localStorage.getItem('puffy_vibl');if(v!==null)VLEV=Math.max(0,Math.min(10,+v||0))}catch(e){}
 // Grafik: GQ Einstellung (0 Auto,1 Niedrig,2 Mittel,3 Hoch), GL wirksame Stufe (0..2)
-const VER="V2026-11-12B",GFXN=['AUTO','NIEDRIG','MITTEL','HOCH'],PCAP=[60,140,260];let GQ=0,GL=2;try{const g=+localStorage.getItem('puffy_gfx');if(g>=0&&g<=3)GQ=g|0}catch(e){}if(GQ)GL=GQ-1;
+const VER="V2026-11-12C",GFXN=['AUTO','NIEDRIG','MITTEL','HOCH'],PCAP=[60,140,260];let GQ=0,GL=2;try{const g=+localStorage.getItem('puffy_gfx');if(g>=0&&g<=3)GQ=g|0}catch(e){}if(GQ)GL=GQ-1;
 function gfxSet(q){GQ=(GQ+q+4)%4;GL=GQ?GQ-1:2;GA.n=GA.s=0;try{localStorage.setItem('puffy_gfx',GQ)}catch(e){}}
 // Auto: über ca. 2 s gemittelte Bildzeit; zu langsam -> eine Stufe runter
 const GA={n:0,s:0};function gfxAuto(dt){if(GQ||st!='play'||document.hidden||!(dt>0&&dt<100))return;GA.n++;GA.s+=dt;if(GA.s<2000)return;if(GA.s/GA.n>24&&GL>0)GL--;GA.n=GA.s=0}
@@ -220,7 +220,7 @@ const inp=(lab,key)=>{const w=mk('label','display:flex;flex-direction:column;ali
 const rs=mk('button','width:auto;height:30px;border-radius:8px;padding:0 8px;font-size:11px','RESET');rs.addEventListener('click',()=>{if(SV.col)delete SV.col[i];save();render()});
 row.append(mk('div','width:24px;color:#8fe8c8','P'+(i+1)),pv,inp('KÖRPER','b'),inp('FÜSSE','f'),rs);cp.appendChild(row);upd()}
 const ok=mk('button','width:auto;height:40px;border-radius:10px;padding:0 24px;font-size:14px','FERTIG');ok.addEventListener('click',()=>{cp.style.display='none'});cp.appendChild(ok)}
-CLB.addEventListener('pointerdown',e=>{e.preventDefault();render();cp.style.display='flex';try{snd('menu')}catch(_){}})}
+CLB.addEventListener('pointerdown',e=>{e.preventDefault();if(st!='title')return;CPM=CPM?0:1;CPS=0;try{snd('menu')}catch(_){}})}
 // ===== Kollision =====
 const SOL=[0,1,0,1,0,1,1,1,1];
 function inRoom(){const D=genLevel(lvl);return !!(D.rooms.length&&P&&P.x>=D.rooms[0]*T-16)}
@@ -952,7 +952,7 @@ C.addEventListener('pointerdown',e=>{if(st!='play'||!P||!P.ab||P.dead)return;con
 function mXY(e){const r=C.getBoundingClientRect();return[(e.clientX-r.left)*VW/r.width,(e.clientY-r.top)*VH/r.height]}
 function mRow(x,y){if(Math.abs(x-VW/2)>56)return -1;const i=Math.floor((y-(oy+36))/13);return i>=0&&i<7?i:-1}
 C.addEventListener('mousemove',e=>{if(st!='pause')return;const[x,y]=mXY(e),i=mRow(x,y);if(i>=0)psel=i});
-C.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button!==0||st=='play')return;const[x,y]=mXY(e);
+C.addEventListener('pointerdown',e=>{if((e.pointerType!=='mouse'&&!(st=='title'&&CPM))||e.button!==0||st=='play')return;const[x,y]=mXY(e);
  if(st=='pause'){const i=mRow(x,y);if(i<0)return;psel=i;if(i==4){gfxSet(1);snd('menu')}else if(i>=1&&i<=3){const bx=x-(VW/2+2);if(bx<-2||bx>=42)return;let v=Math.max(1,Math.min(10,Math.floor(bx/4)+1));const cur=i==3?VLEV:Math.round((i==1?MLEV:SLEV)/2);if(v==1&&cur==1)v=0;
   if(i==1){MLEV=v*2;try{localStorage.setItem('puffy_mus',MLEV)}catch(_){}applyVol()}else if(i==2){SLEV=v*2;try{localStorage.setItem('puffy_sfx',SLEV)}catch(_){}applyVol();snd('menu')}else{VLEV=v;try{localStorage.setItem('puffy_vibl',VLEV)}catch(_){}vibEv('pop',0);snd('menu')}}else ed.j=1;return}
  if(st=='title'&&CPM){const n=NP*3,hh=34+n*9,y0=oy+Math.max(2,(156-hh)/2|0),x0=VW/2-62;if(x<x0-32||x>x0+162||y<y0||y>y0+hh){ed.j=1;return}
