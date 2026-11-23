@@ -68,7 +68,10 @@ const H=160,T=16;let LW=140,VW=240,VH=160,oy=0;
 function layout(){const dpr=window.devicePixelRatio||1,dw=innerWidth*dpr,dh=innerHeight*dpr,land=innerWidth>innerHeight;let n;
 if(land){VH=160;n=Math.max(2,Math.floor(dh/VH));VW=Math.max(240,Math.min(420,Math.floor(dw/n)))}
 else{VH=208;n=Math.max(2,Math.floor(dw/240));VW=Math.max(200,Math.min(300,Math.floor(dw/n)))}
-oy=VH-H;C.width=VW;C.height=VH;X.imageSmoothingEnabled=false;C.style.width=VW*n/dpr+'px';C.style.height=VH*n/dpr+'px'}
+oy=VH-H;C.width=VW;C.height=VH;X.imageSmoothingEnabled=false;C.style.width=VW*n/dpr+'px';C.style.height=VH*n/dpr+'px';placeTL(n/dpr)}
+// 🎨 und ? oben links zwischen Versionsnummer und Logo (an Spielbild-Skalierung ausgerichtet)
+function placeTL(s){const hb=document.getElementById('hb'),cl=document.getElementById('cl');if(!hb||!cl)return;const r=C.getBoundingClientRect(),u=Math.max(1,Math.min(innerWidth,innerHeight)/412),bw=34*u,g=6*u,vr=r.left+50*s,ll=r.left+(VW/2-60)*s;
+ const x=Math.max(vr,(vr+ll)/2-bw-g/2);hb.style.right=cl.style.right='auto';hb.style.left=x+'px';cl.style.left=(x+bw+g)+'px'}
 addEventListener('resize',layout);addEventListener('orientationchange',()=>setTimeout(layout,150));layout();
 let k={},ed={};const K1=k,E1=ed,K2={},E2={},K3={},E3={},K4={},E4={},KS=[K1,K2,K3,K4],ES=[E1,E2,E3,E4];let NP=1,PLS=[];const KM1={a:'l',d:'r',w:'u',s:'d',f:'j',g:'a',Shift:'f'},KM2={ArrowLeft:'l',ArrowRight:'r',ArrowUp:'u',ArrowDown:'d',',':'j','.':'a','/':'f'};
 function key2(n,v){if(v&&!K2[n])E2[n]=1;K2[n]=v}
@@ -193,7 +196,7 @@ const VBL=Date.now?{}:{};const VT=[0,0,0,0];
 function padFor(i){const two=NP>=2&&st=='play';if(i==0)return PADS[0]||null;return(two&&PADS.length>i)?PADS[i]:null}
 let VLEV=10,psel=0;try{const v=localStorage.getItem('puffy_vibl');if(v!==null)VLEV=Math.max(0,Math.min(10,+v||0))}catch(e){}
 // Grafik: GQ Einstellung (0 Auto,1 Niedrig,2 Mittel,3 Hoch), GL wirksame Stufe (0..2)
-const VER="V2026-11-22",GFXN=['AUTO','NIEDRIG','MITTEL','HOCH'],PCAP=[60,140,260];let GQ=0,GL=2;try{const g=+localStorage.getItem('puffy_gfx');if(g>=0&&g<=3)GQ=g|0}catch(e){}if(GQ)GL=GQ-1;
+const VER="V2026-11-23",GFXN=['AUTO','NIEDRIG','MITTEL','HOCH'],PCAP=[60,140,260];let GQ=0,GL=2;try{const g=+localStorage.getItem('puffy_gfx');if(g>=0&&g<=3)GQ=g|0}catch(e){}if(GQ)GL=GQ-1;
 function gfxSet(q){GQ=(GQ+q+4)%4;GL=GQ?GQ-1:2;GA.n=GA.s=0;try{localStorage.setItem('puffy_gfx',GQ)}catch(e){}}
 // Auto: über ca. 2 s gemittelte Bildzeit; zu langsam -> eine Stufe runter
 const GA={n:0,s:0};function gfxAuto(dt){if(GQ||st!='play'||document.hidden||!(dt>0&&dt<100))return;GA.n++;GA.s+=dt;if(GA.s<2000)return;if(GA.s/GA.n>24&&GL>0)GL--;GA.n=GA.s=0}
