@@ -19,7 +19,7 @@ button:active{filter:brightness(.7)}
 #pa,#fs,#np,#h2,#cl,#mu,#hb{position:fixed;top:calc(env(safe-area-inset-top,0px) + 6*var(--u));width:calc(34*var(--u));height:calc(34*var(--u));font-size:calc(14*var(--u));opacity:.75;border-width:2px;z-index:5}
 #pa svg,#fs svg{width:calc(16*var(--u));height:calc(16*var(--u))}
 body.kb #ctl{display:none!important}body.nocur,body.nocur *{cursor:none!important}
-#pa{right:calc(env(safe-area-inset-right,0px) + 8*var(--u));border-radius:11px;border-color:#fff6fb;background:linear-gradient(#ffc4e0,#ff7ab4 55%,#e2508e);box-shadow:0 3px 0 #7a2a68,inset 0 2px 0 rgba(255,255,255,.7);opacity:.85}#pa svg{display:block;margin:auto}#pa:active{transform:translateY(2px);box-shadow:0 1px 0 #7a2a68}#fs{right:calc(env(safe-area-inset-right,0px) + 48*var(--u))}#mu{right:calc(env(safe-area-inset-right,0px) + 88*var(--u))}#cl{right:calc(env(safe-area-inset-right,0px) + 208*var(--u))}#np{right:calc(env(safe-area-inset-right,0px) + 128*var(--u))}#h2{right:calc(env(safe-area-inset-right,0px) + 168*var(--u))}#hb{right:calc(env(safe-area-inset-right,0px) + 248*var(--u));font-weight:bold;font-size:calc(17*var(--u))}#fs svg{display:block;margin:auto}
+#pa{right:calc(env(safe-area-inset-right,0px) + 8*var(--u));border-radius:11px;border-color:#fff6fb;background:linear-gradient(#ffc4e0,#ff7ab4 55%,#e2508e);box-shadow:0 3px 0 #7a2a68,inset 0 2px 0 rgba(255,255,255,.7);opacity:.85}#pa svg{display:block;margin:auto}#pa:active{transform:translateY(2px);box-shadow:0 1px 0 #7a2a68}#fs{right:calc(env(safe-area-inset-right,0px) + 8*var(--u))}#mu{right:calc(env(safe-area-inset-right,0px) + 48*var(--u))}#cl{right:calc(env(safe-area-inset-right,0px) + 208*var(--u))}#np{right:calc(env(safe-area-inset-right,0px) + 88*var(--u))}#h2{right:calc(env(safe-area-inset-right,0px) + 128*var(--u))}#hb{right:calc(env(safe-area-inset-right,0px) + 248*var(--u));font-weight:bold;font-size:calc(17*var(--u))}#fs svg{display:block;margin:auto}
 @media(orientation:landscape){
 body{justify-content:center}
 #ctl{position:fixed;left:0;right:0;bottom:0;margin:0;padding:8px calc(18px + env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) calc(18px + env(safe-area-inset-left,0px));pointer-events:none}
@@ -220,13 +220,13 @@ const VBL=Date.now?{}:{};const VT=[0,0,0,0];
 function padFor(i){const two=NP>=2&&st=='play';if(i==0)return PADS[0]||null;return(two&&PADS.length>i)?PADS[i]:null}
 let VLEV=10,psel=0;try{const v=localStorage.getItem('puffy_vibl');if(v!==null)VLEV=Math.max(0,Math.min(10,+v||0))}catch(e){}
 // Grafik: GQ Einstellung (0 Auto,1 Niedrig,2 Mittel,3 Hoch), GL wirksame Stufe (0..2)
-const VER="V2026-11-23B",GFXN=TXT.gfx,PCAP=[60,140,260];let GQ=0,GL=2;try{const g=+localStorage.getItem('puffy_gfx');if(g>=0&&g<=3)GQ=g|0}catch(e){}if(GQ)GL=GQ-1;
+const VER="V2026-11-23C",GFXN=TXT.gfx,PCAP=[60,140,260];let GQ=0,GL=2;try{const g=+localStorage.getItem('puffy_gfx');if(g>=0&&g<=3)GQ=g|0}catch(e){}if(GQ)GL=GQ-1;
 function gfxSet(q){GQ=(GQ+q+4)%4;GL=GQ?GQ-1:2;GA.n=GA.s=0;try{localStorage.setItem('puffy_gfx',GQ)}catch(e){}}
 // Auto: über ca. 2 s gemittelte Bildzeit; zu langsam -> eine Stufe runter
 const GA={n:0,s:0};function gfxAuto(dt){if(GQ||st!='play'||document.hidden||!(dt>0&&dt<100))return;GA.n++;GA.s+=dt;if(GA.s<2000)return;if(GA.s/GA.n>24&&GL>0)GL--;GA.n=GA.s=0}
 let MLEV=10,SLEV=10;try{const a=localStorage.getItem('puffy_mus'),b=localStorage.getItem('puffy_sfx');if(a!==null)MLEV=+a;if(b!==null)SLEV=+b}catch(e){}
 function applyVol(){if(AC){mg.gain.value=mute?0:.17*MLEV/10;sg.gain.value=mute?0:.6*SLEV/10}}
-// Stumm (Knopf oben rechts, Taste M, L3/R3 – nur in Menü/Pause); Reglerwerte bleiben erhalten
+// Stumm (Knopf oben rechts links neben Vollbild, Taste M, Controller L3; Vollbild per R3 – alles nur in Menü/Pause); Reglerwerte bleiben erhalten
 function setMute(v){mute=!!v;try{localStorage.setItem('puffy_mute',mute?1:0)}catch(e){}applyVol();const b=document.getElementById('mu');if(b)b.textContent=mute?'🔇':'🔊';if(!mute)snd('menu')}
 function muteOK(){return st=='title'||st=='help'||st=='pause'||st=='win'}
 function vibEv(n,pi){if(!VIBON||!VLEV)return;const v=VB[n];if(!v||!v[0])return;let ps=v[4]?[0,1,2,3]:[pi==null?Math.max(0,PLS.indexOf(P)):pi];let ph=0;const f=VLEV/10,sc=x=>Array.isArray(x)?x.map(y=>Math.round(y*f)):Math.round(x*f);
@@ -1007,7 +1007,7 @@ function cHint(t){if(PADON)ptx(t,VW-5,VH-9,1,'#bbb','right')}
 // Versteckte Credits (Versionsnummer antippen); Musik/Sounds/Grafik sind komplett im Code erzeugt
 const CRDL=TXT.crd.map((t,i)=>[t,i==0||i==4?'#ffe030':i==7?'#bbb':'#fff']);
 function crDraw(){dim(.7);panel(VW/2-80,oy+14,160,128);ptx(TXT.crTitle,VW/2,oy+21,2,'#ffe030','center');CRDL.forEach((l,i)=>{if(l[0])ptx(l[0],VW/2,oy+44+i*10,1,l[1],'center')});ptx(VER,VW/2,oy+130,1,'#9a7ac8','center');cHint(sgt(TXT.back))}
-function draw(a){alpha=a===undefined?1:a;if(npv!=st+NP){npv=st+NP;NPB.style.display=st=='title'?'':'none';if(CLB)CLB.style.display=st=='title'?'':'none';H2B.style.display=(st=='title'&&NP==2)?'':'none';MUB.style.display=muteOK()?'':'none';HBB.style.display=st=='title'?'':'none';NPB.textContent=NP+'P'}
+function draw(a){alpha=a===undefined?1:a;if(npv!=st+NP){npv=st+NP;NPB.style.display=st=='title'?'':'none';if(CLB)CLB.style.display=st=='title'?'':'none';H2B.style.display=(st=='title'&&NP==2)?'':'none';MUB.style.display=muteOK()?'':'none';FSB.style.display=muteOK()&&FSOK?'':'none';pa.style.display=muteOK()?'none':'';HBB.style.display=st=='title'?'':'none';NPB.textContent=NP+'P'}
 X.setTransform(1,0,0,1,0,0);X.fillStyle='#000';X.fillRect(0,0,VW,VH);
 if(st=='title'||st=='win'||st=='help'){cam=(frame*.5)%1000;camR=Math.round(cam);const L0=lvl;if(st=='title'||st=='help')lvl=Math.max(0,Math.min(sel,LV.length-1));else lvl=4;X.translate(0,oy);
  if(MP===undefined)MP=[];bg();decor();tiles();amb();
@@ -1194,7 +1194,7 @@ HBB.addEventListener('pointerdown',e=>{e.preventDefault();if(st=='title'){CPM=0;
 let last=0,acc=0;
 const FSB=document.getElementById('fs'),FSE=document.documentElement;let WLK=null;
 const fsOn=()=>document.fullscreenElement||document.webkitFullscreenElement;
-if(!FSE.requestFullscreen&&!FSE.webkitRequestFullscreen)FSB.style.display='none';
+const FSOK=!!(FSE.requestFullscreen||FSE.webkitRequestFullscreen);if(!FSOK)FSB.style.display='none';
 // FSW: Vollbild gewünscht (Standard an; nur der Vollbild-Knopf schaltet es ab)
 let FSW=true;
 function enterFS(){if(fsOn()||!(FSE.requestFullscreen||FSE.webkitRequestFullscreen))return;try{const p=FSE.requestFullscreen?FSE.requestFullscreen({navigationUI:'hide'}):FSE.webkitRequestFullscreen();if(p&&p.then)p.then(lockOri,()=>{})}catch(e){}}
@@ -1254,7 +1254,7 @@ if(s2.tri&&!PS2.tri&&st=='play'&&PLS[1]&&PLS[1].ab&&!PLS[1].dead){const o=P;P=PL
 const op=pads.some(g=>g.buttons[9]&&g.buttons[9].pressed);if(op&&!PS.op){if(st=="title"){key("j",1);key("j",0)}else togglePause()}PS.op=op;
 {const g=pads[0],bt=i=>!!(g&&g.buttons[i]&&g.buttons[i].pressed),mo=bt(5)||bt(7),le=bt(4)||bt(6);if(st=="title"&&!CPM){if(mo&&!PS.npm&&NP<4){NP++;snd("menu")}if(le&&!PS.npl&&NP>1){NP--;snd("menu")}}PS.npm=mo;PS.npl=le}
 const sh=s1.sh||s2.sh;if(sh&&!PS.sh){key('c',1);key('c',0)}PS.sh=sh;
-const m3=pads.some(g=>(g.buttons[10]&&g.buttons[10].pressed)||(g.buttons[11]&&g.buttons[11].pressed));if(m3&&!PS.m3&&muteOK())setMute(!mute);PS.m3=m3}
+const l3=pads.some(g=>g.buttons[10]&&g.buttons[10].pressed),r3=pads.some(g=>g.buttons[11]&&g.buttons[11].pressed);if(l3&&!PS.l3&&muteOK())setMute(!mute);if(r3&&!PS.r3&&muteOK()&&FSOK)toggleFS();PS.l3=l3;PS.r3=r3}
 function loop(t){pollPad();gfxAuto(t-last);acc+=Math.min(100,t-last);last=t;
 while(acc>=16.67){step();acc-=16.67;for(const e of ES)for(const n in e)delete e[n]}
 draw(acc/16.67);requestAnimationFrame(loop)}
