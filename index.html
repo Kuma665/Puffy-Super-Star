@@ -220,7 +220,7 @@ const VBL=Date.now?{}:{};const VT=[0,0,0,0];
 function padFor(i){const two=NP>=2&&st=='play';if(i==0)return PADS[0]||null;return(two&&PADS.length>i)?PADS[i]:null}
 let VLEV=10,psel=0;try{const v=localStorage.getItem('puffy_vibl');if(v!==null)VLEV=Math.max(0,Math.min(10,+v||0))}catch(e){}
 // Grafik: GQ Einstellung (0 Auto,1 Niedrig,2 Mittel,3 Hoch), GL wirksame Stufe (0..2)
-const VER="V2026-11-23D",GFXN=TXT.gfx,PCAP=[60,140,260];let GQ=0,GL=2;try{const g=+localStorage.getItem('puffy_gfx');if(g>=0&&g<=3)GQ=g|0}catch(e){}if(GQ)GL=GQ-1;
+const VER="V2026-11-24",GFXN=TXT.gfx,PCAP=[60,140,260];let GQ=0,GL=2;try{const g=+localStorage.getItem('puffy_gfx');if(g>=0&&g<=3)GQ=g|0}catch(e){}if(GQ)GL=GQ-1;
 function gfxSet(q){GQ=(GQ+q+4)%4;GL=GQ?GQ-1:2;GA.n=GA.s=0;try{localStorage.setItem('puffy_gfx',GQ)}catch(e){}}
 // Auto: über ca. 2 s gemittelte Bildzeit; zu langsam -> eine Stufe runter
 const GA={n:0,s:0};function gfxAuto(dt){if(GQ||st!='play'||document.hidden||!(dt>0&&dt<100))return;GA.n++;GA.s+=dt;if(GA.s<2000)return;if(GA.s/GA.n>24&&GL>0)GL--;GA.n=GA.s=0}
@@ -870,7 +870,7 @@ if(k=='x'){R(x,y+1,1,1,EK);R(x+2,y+1,1,1,EK);R(x+1,y+2,1,1,EK);R(x,y+3,1,1,EK);R
 if(k=='u'){R(x,y+3,1,1,EK);R(x+1,y+2,1,1,EK);R(x+2,y+3,1,1,EK);return}
 R(x+1,y-1,1,1,EK);R(x,y,3,4,EK);R(x+1,y+4,1,1,EK);R(x,y,1,2,'#fff');R(x+1,y+3,2,1,'#6aa8f0');R(x+2,y+2,1,1,'#3a5ab8')}
 function pface(cx,cy,d,mode,mouth){const ex=cx+(d>0?1:0);const eo=d>0?1:-1;eyeR(ex-4+eo,cy-5,mode);eyeR(ex+1+eo,cy-5,mode);
-R(ex-8,cy+1,3,2,'#ff5a8e');R(ex+5,cy+1,3,2,'#ff5a8e');R(ex-8,cy+1,1,1,'#ffb4cc');R(ex+5,cy+1,1,1,'#ffb4cc');
+R(ex-7,cy+1,3,2,'#ff5a8e');R(ex+4,cy+1,3,2,'#ff5a8e');R(ex-7,cy+1,1,1,'#ffb4cc');R(ex+4,cy+1,1,1,'#ffb4cc');
 if(mouth=='o'){R(ex-1,cy+1,2,3,'#5b1030');R(ex-1,cy+3,2,1,'#e8566a')}
 else if(mouth=='O'){const mx=ex-2+eo,W=4,Q='#5b1030',T='#ee6a88';R(mx+1,cy+0,W-2,1,Q);R(mx,cy+1,W,1,Q);R(mx,cy+2,W,1,Q);R(mx+1,cy+3,W-2,1,Q);R(mx+1,cy+2,W-2,1,T)}
 else if(mouth=='s'){R(ex-1,cy+1,3,2,MK);R(ex,cy+2,1,1,'#ff7a9a')}
