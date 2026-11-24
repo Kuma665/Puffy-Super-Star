@@ -16,7 +16,7 @@ button{width:72px;height:72px;border-radius:50%;border:3px solid #fff;background
 button.s{width:50px;height:50px;font-size:13px}
 button:active{filter:brightness(.7)}
 :root{--u:max(1px,calc(100vmin / 412))}
-#pa,#fs,#np,#h2,#cl,#mu,#hb{position:fixed;top:calc(env(safe-area-inset-top,0px) + 6*var(--u));width:calc(34*var(--u));height:calc(34*var(--u));font-size:calc(14*var(--u));opacity:.75;border-width:2px;z-index:5}
+#pa,#fs,#np,#h2,#cl,#mu,#hb{position:fixed;top:calc(env(safe-area-inset-top,0px) + 6*var(--u));width:calc(34*var(--u));height:calc(34*var(--u));font-size:calc(14*var(--u));opacity:1;border-width:2px;z-index:5}#fs,#np,#h2,#cl,#mu,#hb{background:#c66f9d;border-color:#c8c4cc}
 #pa svg,#fs svg{width:calc(16*var(--u));height:calc(16*var(--u))}
 body.kb #ctl{display:none!important}body.nocur,body.nocur *{cursor:none!important}
 #pa{right:calc(env(safe-area-inset-right,0px) + 8*var(--u));border-radius:11px;border-color:#fff6fb;background:linear-gradient(#ffc4e0,#ff7ab4 55%,#e2508e);box-shadow:0 3px 0 #7a2a68,inset 0 2px 0 rgba(255,255,255,.7);opacity:.85}#pa svg{display:block;margin:auto}#pa:active{transform:translateY(2px);box-shadow:0 1px 0 #7a2a68}#fs{right:calc(env(safe-area-inset-right,0px) + 8*var(--u))}#mu{right:calc(env(safe-area-inset-right,0px) + 48*var(--u))}#cl{right:calc(env(safe-area-inset-right,0px) + 208*var(--u))}#np{right:calc(env(safe-area-inset-right,0px) + 88*var(--u))}#h2{right:calc(env(safe-area-inset-right,0px) + 128*var(--u))}#hb{right:calc(env(safe-area-inset-right,0px) + 248*var(--u));font-weight:bold;font-size:calc(17*var(--u))}#fs svg{display:block;margin:auto}
@@ -220,7 +220,7 @@ const VBL=Date.now?{}:{};const VT=[0,0,0,0];
 function padFor(i){const two=NP>=2&&st=='play';if(i==0)return PADS[0]||null;return(two&&PADS.length>i)?PADS[i]:null}
 let VLEV=10,psel=0;try{const v=localStorage.getItem('puffy_vibl');if(v!==null)VLEV=Math.max(0,Math.min(10,+v||0))}catch(e){}
 // Grafik: GQ Einstellung (0 Auto,1 Niedrig,2 Mittel,3 Hoch), GL wirksame Stufe (0..2)
-const VER="V2026-11-23C",GFXN=TXT.gfx,PCAP=[60,140,260];let GQ=0,GL=2;try{const g=+localStorage.getItem('puffy_gfx');if(g>=0&&g<=3)GQ=g|0}catch(e){}if(GQ)GL=GQ-1;
+const VER="V2026-11-23D",GFXN=TXT.gfx,PCAP=[60,140,260];let GQ=0,GL=2;try{const g=+localStorage.getItem('puffy_gfx');if(g>=0&&g<=3)GQ=g|0}catch(e){}if(GQ)GL=GQ-1;
 function gfxSet(q){GQ=(GQ+q+4)%4;GL=GQ?GQ-1:2;GA.n=GA.s=0;try{localStorage.setItem('puffy_gfx',GQ)}catch(e){}}
 // Auto: über ca. 2 s gemittelte Bildzeit; zu langsam -> eine Stufe runter
 const GA={n:0,s:0};function gfxAuto(dt){if(GQ||st!='play'||document.hidden||!(dt>0&&dt<100))return;GA.n++;GA.s+=dt;if(GA.s<2000)return;if(GA.s/GA.n>24&&GL>0)GL--;GA.n=GA.s=0}
@@ -681,6 +681,11 @@ const PL={pink:{l:'#ffd9f2',m:'#ffaadc',d:'#e676c0',o:'#6e2a6a'},w:{l:'#ffc27a',
 function ball(r,p){const key='b'+r+p.m+p.o;if(SC[key])return SC[key];const n=Math.ceil(r*2)+2,c=mkc(n,n),g=c.getContext('2d'),m=n/2;
 for(let y=0;y<n;y++)for(let x=0;x<n;x++){const dx=x+.5-m,dy=y+.5-m,d=Math.hypot(dx,dy);if(d>r)continue;
 let col;if(d>r-1)col=p.o;else if(r>4&&Math.hypot(dx+r*.4,dy+r*.45)<r*.27)col=p.l;else if(dx+dy>r*.5||(d>r-2.3&&dx+dy>0))col=p.d;else col=p.m;
+g.fillStyle=col;g.fillRect(x,y,1,1)}c._r=r;c._p=p;return SC[key]=c}
+// Kugel direkt in Zielgröße w×h (statt Skalieren: sonst springen Pixelreihen/Schattenkante je Frame)
+function sball(r,p,w,h){const key='s'+r+p.m+p.o+'_'+w+'_'+h;if(SC[key])return SC[key];const n=Math.ceil(r*2)+2,c=mkc(w,h),g=c.getContext('2d'),m=n/2,fx=n/w,fy=n/h;
+for(let y=0;y<h;y++)for(let x=0;x<w;x++){const dx=(x+.5)*fx-m,dy=(y+.5)*fy-m,d=Math.hypot(dx,dy);if(d>r)continue;
+let col;if(d>r-1)col=p.o;else if(r>4&&Math.hypot(dx+r*.4,dy+r*.45)<r*.27)col=p.l;else if(dx+dy>r*.5||(d>r-2.3&&dx+dy>0))col=p.d;else col=p.m;
 g.fillStyle=col;g.fillRect(x,y,1,1)}return SC[key]=c}
 function oval(rx,ry,p){const key='o'+rx+ry+p.m+p.o;if(SC[key])return SC[key];const w=Math.ceil(rx*2)+2,h=Math.ceil(ry*2)+2,c=mkc(w,h),g=c.getContext('2d');
 for(let y=0;y<h;y++)for(let x=0;x<w;x++){const dx=x+.5-w/2,dy=y+.5-h/2,q=(dx*dx)/(rx*rx)+(dy*dy)/(ry*ry);if(q>1)continue;
@@ -858,7 +863,7 @@ if(e.wt>0)ptx('!',Math.round(cx)-camR,e.y-12,2,'#ff5a3a','center');
 if(e.burn>0){for(let i=0;i<4;i++)spr(ball(3,PL.fire),cx-6+i*4+Math.sin(frame/2+i),cy-10-((frame>>1)+i*3)%6)}
 if(e.hurt>0&&frame%2){X.globalAlpha=.6;R(e.x-2,e.y-3,24,25,'#fff');X.globalAlpha=1}
 const mh=ET[e.t].hp;if(e.hp<mh){const bw=Math.round(20*e.hp/mh);R(e.x,e.y-6,20,3,'#2a1040');R(e.x+.5,e.y-5.5,Math.max(1,bw-1),2,'#ff5a3a')}}
-function body(img,cx,bottom,sx,sy){const w=Math.round(img.width*sx),h=Math.round(img.height*sy);X.drawImage(img,Math.round(cx-w/2)-camR,Math.round(bottom-h),w,h)}
+function body(img,cx,bottom,sx,sy){const w=Math.round(img.width*sx),h=Math.round(img.height*sy);if(img._r)img=sball(img._r,img._p,w,h);X.drawImage(img,Math.round(cx-w/2)-camR,Math.round(bottom-h),w,h)}
 const EK='#2a1030',MK='#7a2a58',PF={l:'#ff8a96',m:'#e8384f',d:'#b11f3a',o:'#6a1228'},PFG={l:'#f0a050',m:'#d0600c',d:'#a04408',o:'#522004'};
 function eyeR(x,y,k){if(k=='b'){R(x,y+3,3,1,EK);return}
 if(k=='x'){R(x,y+1,1,1,EK);R(x+2,y+1,1,1,EK);R(x+1,y+2,1,1,EK);R(x,y+3,1,1,EK);R(x+2,y+3,1,1,EK);return}
